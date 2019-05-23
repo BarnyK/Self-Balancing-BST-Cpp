@@ -10,14 +10,14 @@
 #include "binarytree.h"
 
 int main() {
-    BinaryTree<int,int> tree;
-    tree.radd(32,0);
-    tree.radd(16,0);
-    tree.radd(34,0);
-    tree.radd(31,0);
-    tree.radd(8,0);
-    tree.radd(17,0);
+    Dictionary<int,int> tree;
+    tree.add(32,0);
+    tree.add(16,0);
+    tree.add(34,0);
+    tree.add(31,0);
+    tree.add(8,0);
     std::cout << tree.countleaves() << std::endl;
     std::cout << tree.height() << std::endl;
+    
     return 0;
 }

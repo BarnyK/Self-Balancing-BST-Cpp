@@ -9,36 +9,70 @@
 #ifndef binarytree_h
 #define binarytree_h
 
-template <typename Key,typename Val>
-class BinaryTree{
+template <typename Key,typename Info>
+class Dictionary{
 private:
     struct Node{
         Key key;
-        Val val;
+        Info val;
         int balance;
         
         Node* parent;
         Node* lchild;
         Node* rchild;
-        Node(Key k, Val v, Node* p = nullptr):key(k),val(v),parent(p),balance(0),lchild(nullptr),rchild(nullptr){};
+        Node(Key k, Info v, Node* p = nullptr):key(k),val(v),parent(p),balance(0),lchild(nullptr),rchild(nullptr){};
     };
     
     Node* root;
     
-    int height(Node*);
-    int countleaves(Node*);
-    bool radd(Node* p, Key k, Val v);
+    int height(Node*);                  //recursive
+    int countleaves(Node*);             //recursive
+    bool add(Key k, Info v, Node* p);   //recursive
+    void remove_branch(Node *n);        //recursive
 public:
-    BinaryTree():root(nullptr){}
+    Dictionary():root(nullptr){}
+    ~Dictionary();
     
     int height();
     int countleaves();
-    void add(Key k, Val v);
-    bool radd(Key k, Val v);
+    
+    bool add(Key k, Info v);
+    void remove(Key k);
+    
+    bool find_by_key(Key k);            // returns true if the key is found
+    bool find_by_value(Info v);         // returns true if the value is found
+    Info update(Key k, Info v);         // Finds node with Key k and exchanges the value of it with V, return previous value if existed, if not adds new returns new
+    
+    
+    void clear();
+    Info get(Key k);        // returns value under a given key
+    Info pop(Key k);        // returns value under a given key and removes it
+    
+    void draw();
 };
 
-template <class Key, class Val>
-int BinaryTree<Key,Val>::height(Node* x){
+template <typename Key, typename Info>
+Dictionary<Key,Info>::~Dictionary(){
+    remove_branch(root);
+    root = nullptr;
+}
+
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::remove_branch(Node* n){
+    if(n){
+        remove_branch(n->lchild);
+        remove_branch(n->rchild);
+        delete n;
+    }
+}
+
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::remove(Key k){
+    
+}
+
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::height(Node* x){
     if(!x)
         return 0;
     int hleft,hright;
@@ -48,13 +82,13 @@ int BinaryTree<Key,Val>::height(Node* x){
 }
 
 
-template <class Key, class Val>
-int BinaryTree<Key,Val>::countleaves(){
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::countleaves(){
     return countleaves(root);
 }
 
-template <class Key, class Val>
-int BinaryTree<Key,Val>::countleaves(Node* x){
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::countleaves(Node* x){
     if(!x)
         return 0;
     if(!x->lchild && !x->rchild)
@@ -62,16 +96,16 @@ int BinaryTree<Key,Val>::countleaves(Node* x){
     return countleaves(x->lchild) + countleaves(x->rchild);
 }
 
-template <class Key, class Val>
-int BinaryTree<Key,Val>::height(){
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::height(){
     return root ? height(root) : 0;
 }
 
-template <class Key, class Val>
-bool BinaryTree<Key,Val>::radd(Node* p, Key k, Val v){
+template <typename Key, typename Info>
+bool Dictionary<Key,Info>::add(Key k, Info v, Node* p){
     if(p->key > k){
         if(p->lchild)
-            return radd(p->lchild,k,v);
+            return add(k,v,p->lchild);
         else{
             p->lchild = new Node(k,v,p);
             return 0;
@@ -79,7 +113,7 @@ bool BinaryTree<Key,Val>::radd(Node* p, Key k, Val v){
     }
     else if(p->key < k){
         if(p->rchild)
-            return radd(p->rchild,k,v);
+            return add(k,v,p->rchild);
         else{
             p->rchild = new Node(k,v,p);
             return 0;
@@ -89,44 +123,15 @@ bool BinaryTree<Key,Val>::radd(Node* p, Key k, Val v){
 }
 
 
-template <class Key, class Val>
-bool BinaryTree<Key,Val>::radd(Key k, Val v){
+template <typename Key, typename Info>
+bool Dictionary<Key,Info>::add(Key k, Info v){
     if(root)
-        return radd(root,k, v);
+        return add(k, v, root);
     else{
         root = new Node(k,v);
         return 0;
     }
 }
-template <class Key, class Val>
-void BinaryTree<Key,Val>::add(Key k, Val v){
-    if(!root){
-        root = new Node(k,v,nullptr);
-    }
-    else{
-        Node* tmp = root;
-        int d = 0;
-        while(tmp){
-            if(k < tmp->key){
-                if(tmp->lchild)
-                    tmp = tmp->lchild;
-                else{
-                    tmp->lchild = new Node(k,v,tmp);
-                    break;
-                }
-            }
-            else if(tmp->key < k){
-                if(tmp->rchild)
-                    tmp = tmp->rchild;
-                else{
-                    tmp->rchild = new Node(k,v,tmp);
-                    break;
-                    
-                }
-            }
-            d++;
-        }
-    }
-}
+
 
 #endif /* binarytree_h */
