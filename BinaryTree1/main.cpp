@@ -1,14 +1,7 @@
-//
-//  main.cpp
-//  BinaryTree1
-//
-//  Created by Winky Face on 15/05/2019.
-//  Copyright © 2019 Barnaba Krupowicz. All rights reserved.
-//
-
 #include <iostream>
 #include "binarytree.h"
 
+// TODO Add tests
 int main() {
     Dictionary<int,int> tree;
 
@@ -18,5 +11,6 @@ int main() {
     tree.add(8,4);
     tree.remove(48);
     std::cout << tree.pop(8) << std::endl;
+    std::cout << tree.find_by_key(16) << std::endl;
     return 0;
 }

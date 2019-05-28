@@ -38,6 +38,8 @@ private:
     Info& get(Key k, Node* n);          //done, recurisve
     Info pop(Node*& n, Key k);          //done
     bool is_leaf(Node* n);              //done
+    bool find_by_key(Node* n, Key k);
+    bool find_by_value(Node* n, Info v);
     
     int update_balance(Node*& n, Key k);    //done
     
@@ -93,14 +95,47 @@ Info& Dictionary<Key,Info>::get(Key k){
 // TODO
 // returns true if the key is found
 template <typename Key, typename Info>
+bool Dictionary<Key,Info>::find_by_key(Node* n, Key k){
+    if(!n)
+        return 0;
+    else if(n->key == k)
+        return 1;
+    else if(n->key > k)
+        return find_by_value(n->lchild, k);
+    else
+        return find_by_value(n->rchild, k);
+}
+
+template <typename Key, typename Info>
 bool Dictionary<Key,Info>::find_by_key(Key k){
-    
+    if(!root)
+        return 0;
+    return find_by_key(root, k);
+}
+
+template <typename Key, typename Info>
+bool Dictionary<Key,Info>::find_by_value(Node* n, Info v){
+    if(!n)
+        return 0;
+    else{
+        if(n->val == v)
+            return 1;
+        bool r = find_by_value(n->lchild, v);
+        if(r)
+            return 1;
+        r = find_by_value(n->rchild, v);
+        if(r)
+            return 1;
+        return 0;
+    }
 }
 
 // returns true if the key is found
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::find_by_value(Info v){
-    
+    if(!root)
+        return 0;
+    return find_by_value(root,v);
 }
 
 // Add exception
