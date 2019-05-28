@@ -70,167 +70,7 @@ public:
     void draw();            //??????
 };
 
-
-
-// Rotates nodes left right or right left
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::rotate_double(Node *&n, bool left_right){
-    Node* x;
-    Node* y;
-    Node* z;
-    if(left_right){
-        z = n;
-        x = z->lchild;
-        y = x->rchild;
-    }
-    else{
-        x = n;
-        z = x->rchild;
-        y = z->lchild;
-    }
-    
-    if(y->lchild){
-        x->rchild = y->lchild;
-        x->rchild->parent = x;
-    }
-    else{
-        x->rchild = nullptr;
-    }
-    if(y->rchild){
-        z->lchild = y->rchild;
-        z->lchild->parent = z;
-    }
-    else{
-        z->lchild = nullptr;
-    }
-    y->lchild = x;
-    y->rchild = z;
-    y->parent = x->parent;
-    x->parent = z->parent = y;
-    n = y;
-    // Balancing
-    if(y->balance > 0){
-        x->balance = -1;
-        z->balance = 0;
-    }
-    else if(y->balance == 0){
-        x->balance = 0;
-        z->balance = 0;
-    }
-    else{
-        x->balance = 0;
-        z->balance = 1;
-    }
-    y->balance = 0;
-}
-
-// Calls double rotation function for left right variant
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::rotate_left_right(Node *&n){
-    rotate_double(n, 0);
-}
-
-// Calls double rotation function for right left variant
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::rotate_right_left(Node *&n){
-    rotate_double(n, 1);
-}
-
-// Rotates nodes to the left
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::rotate_left(Node *&n){
-    Node* x = n;
-    Node* y = n->rchild;
-    
-    // Dealing with inner child of lower node
-    if(y->lchild){
-        x->rchild = y->lchild;
-        x->rchild->parent = x;
-    }
-    else{
-        x->rchild = nullptr;
-    }
-    // Rotating positions of nodes
-    y->lchild = x;
-    n = y;
-    // Parents swap
-    y->parent = x->parent;
-    x->parent = y;
-
-    // Balance value updates
-    if(y->balance == 0){
-        y->balance = 1;
-        x->balance = 1;
-    }
-    else{
-        y->balance = 0;
-        x->balance = 0;
-    }
-}
-
-// Rotates nodes to the right
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::rotate_right(Node *&n){
-    Node* x = n;
-    Node* y = x->lchild;
-    
-    // Dealing with inner child of lower node
-    if(y->rchild){
-        x->lchild = y->rchild;
-        x->lchild->parent = x;
-    }
-    else{
-        x->lchild = nullptr;
-    }
-    // Swapping the nodes
-    y->rchild = x;
-    n = y;
-    // Parents swap
-    y->parent = x->parent;
-    x->parent = y;
-    
-    // Balance value updates
-    if(y->balance == 0){
-        y->balance = 1;
-        x->balance = -1;
-    }
-    else{
-        y->balance = 0;
-        x->balance = 0;
-    }
-}
-
-// Updates balance values of a tree from leaf, good for insertions
-template <typename Key, typename Info>
-int Dictionary<Key,Info>::update_balance(Node*& n, Key k){
-    if(!n){
-        return 0;
-    }
-    int h = 0;
-    if(n->key < k){
-        h = update_balance(n->rchild,k);
-        n->balance = h - height(n->lchild);
-    }
-    if(n->key > k){
-        h = update_balance(n->lchild,k);
-        n->balance = height(n->rchild) - h;
-    }
-    if(n->balance == 2 && n->rchild->balance >= 0){
-        rotate_left(n);
-    }
-    else if(n->balance == -2 && n->lchild->balance <= 0){
-        rotate_right(n);
-    }
-    else if(n->balance == 2 && n->rchild->balance == -1){
-        rotate_right_left(n);
-    }
-    else if(n->balance == -2 && n->lchild->balance == 1){
-        rotate_right_left(n);
-    }
-    return h+1;
-}
-
-
+// Returns reference to value under a given key
 template <typename Key, typename Info>
 Info& Dictionary<Key,Info>::get(Key k, Node* r){
     if(r->key == k){
@@ -244,14 +84,22 @@ Info& Dictionary<Key,Info>::get(Key k, Node* r){
     }
 }
 
-// Calls recursive get function
+// Call to recursive function get
 template <typename Key, typename Info>
 Info& Dictionary<Key,Info>::get(Key k){
     return get(k,root);
 }
+
+// TODO
 // returns true if the key is found
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::find_by_key(Key k){
+    
+}
+
+// returns true if the key is found
+template <typename Key, typename Info>
+bool Dictionary<Key,Info>::find_by_value(Info v){
     
 }
 
@@ -287,12 +135,6 @@ bool Dictionary<Key,Info>::is_leaf(Node *n){
     if(!n->lchild && !n->rchild)
         return 1;
     return 0;
-}
-
-// Yikers
-template <typename Key, typename Info>
-void Dictionary<Key,Info>::draw(){
-    
 }
 
 // Destructor calls remove_branch, which is a recursive function
@@ -387,7 +229,6 @@ bool Dictionary<Key,Info>::add(Key k, Info v){
     }
 }
 
-// ?????? UPDATE_BALANCE
 // Removes a node with given key from a dictionary
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::remove(Node*& n, Key k){
@@ -468,6 +309,170 @@ Info Dictionary<Key,Info>::pop(Key k){
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::clear(){
     remove_branch(root);
+}
+
+// Rotates nodes left right or right left
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::rotate_double(Node *&n, bool left_right){
+    Node* x;
+    Node* y;
+    Node* z;
+    if(left_right){
+        z = n;
+        x = z->lchild;
+        y = x->rchild;
+    }
+    else{
+        x = n;
+        z = x->rchild;
+        y = z->lchild;
+    }
+    
+    if(y->lchild){
+        x->rchild = y->lchild;
+        x->rchild->parent = x;
+    }
+    else{
+        x->rchild = nullptr;
+    }
+    if(y->rchild){
+        z->lchild = y->rchild;
+        z->lchild->parent = z;
+    }
+    else{
+        z->lchild = nullptr;
+    }
+    y->lchild = x;
+    y->rchild = z;
+    y->parent = x->parent;
+    x->parent = z->parent = y;
+    n = y;
+    // Balancing
+    if(y->balance > 0){
+        x->balance = -1;
+        z->balance = 0;
+    }
+    else if(y->balance == 0){
+        x->balance = 0;
+        z->balance = 0;
+    }
+    else{
+        x->balance = 0;
+        z->balance = 1;
+    }
+    y->balance = 0;
+}
+
+// Calls double rotation function for left right variant
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::rotate_left_right(Node *&n){
+    rotate_double(n, 0);
+}
+
+// Calls double rotation function for right left variant
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::rotate_right_left(Node *&n){
+    rotate_double(n, 1);
+}
+
+// Rotates nodes to the left
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::rotate_left(Node *&n){
+    Node* x = n;
+    Node* y = n->rchild;
+    
+    // Dealing with inner child of lower node
+    if(y->lchild){
+        x->rchild = y->lchild;
+        x->rchild->parent = x;
+    }
+    else{
+        x->rchild = nullptr;
+    }
+    // Rotating positions of nodes
+    y->lchild = x;
+    n = y;
+    // Parents swap
+    y->parent = x->parent;
+    x->parent = y;
+    
+    // Balance value updates
+    if(y->balance == 0){
+        y->balance = 1;
+        x->balance = 1;
+    }
+    else{
+        y->balance = 0;
+        x->balance = 0;
+    }
+}
+
+// Rotates nodes to the right
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::rotate_right(Node *&n){
+    Node* x = n;
+    Node* y = x->lchild;
+    
+    // Dealing with inner child of lower node
+    if(y->rchild){
+        x->lchild = y->rchild;
+        x->lchild->parent = x;
+    }
+    else{
+        x->lchild = nullptr;
+    }
+    // Swapping the nodes
+    y->rchild = x;
+    n = y;
+    // Parents swap
+    y->parent = x->parent;
+    x->parent = y;
+    
+    // Balance value updates
+    if(y->balance == 0){
+        y->balance = 1;
+        x->balance = -1;
+    }
+    else{
+        y->balance = 0;
+        x->balance = 0;
+    }
+}
+
+// Updates balance values of a tree from leaf, good for insertions
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::update_balance(Node*& n, Key k){
+    if(!n){
+        return 0;
+    }
+    int h = 0;
+    if(n->key < k){
+        h = update_balance(n->rchild,k);
+        n->balance = h - height(n->lchild);
+    }
+    if(n->key > k){
+        h = update_balance(n->lchild,k);
+        n->balance = height(n->rchild) - h;
+    }
+    if(n->balance == 2 && n->rchild->balance >= 0){
+        rotate_left(n);
+    }
+    else if(n->balance == -2 && n->lchild->balance <= 0){
+        rotate_right(n);
+    }
+    else if(n->balance == 2 && n->rchild->balance == -1){
+        rotate_right_left(n);
+    }
+    else if(n->balance == -2 && n->lchild->balance == 1){
+        rotate_right_left(n);
+    }
+    return h+1;
+}
+
+// Yikers
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::draw(){
+    
 }
 
 #endif /* binarytree_h */
