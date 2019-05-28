@@ -1,13 +1,7 @@
-//
-//  binarytree.h
-//  BinaryTree1
-//
-//  Created by Winky Face on 15/05/2019.
-//  Copyright © 2019 Barnaba Krupowicz. All rights reserved.
-//
-
 #ifndef binarytree_h
 #define binarytree_h
+
+
 
 template <typename Key,typename Info>
 class Dictionary{
@@ -17,60 +11,78 @@ private:
         Info val;
         int balance;    //updates after removal and insertion
         
-        Node* parent;
         Node* lchild;
         Node* rchild;
-        Node(Key k, Info v, Node* p = nullptr, Node* l = nullptr, Node* r = nullptr):key(k),val(v),balance(0),parent(p),lchild(l),rchild(r){};
+        Node(Key k, Info v, Node* l = nullptr, Node* r = nullptr):key(k),val(v),balance(0),lchild(l),rchild(r){};
     };
     
     Node* root;
     
-    bool add(Key k, Info v, Node* p);   //done, recursive
+    // Addition
+    bool add(Key k, Info v, Node*& p);
     
-    bool remove(Node*& n, Key k);       //done, recursive
-    void remove_branch(Node*& n, bool first = 1);        //done, recursive
+    // Removal
+    bool remove(Node*& n, Key k);
+    void remove_branch(Node*& n, bool first = 1);
     
-    int height(Node*);                  //done, recursive
-    int countleaves(Node*);             //done, recursive
-    Node* get_lowest(Node *n);          //done, recrusive, add exception
-    Node* get_highest(Node *n);         //done, recurisve, add exception
+    // Used in removal, helping functions
+    Node* get_lowest(Node *n);
+    Node* get_highest(Node *n);
     
-    Info& get(Key k, Node* n);          //done, recurisve
-    Info pop(Node*& n, Key k);          //done
-    bool is_leaf(Node* n);              //done
-    bool find_by_key(Node* n, Key k);
-    bool find_by_value(Node* n, Info v);
+    //
+    Info& get(Key k, Node* n);          // returns reference to value under a given key
+    Info pop(Node*& n, Key k);          // return value under a given key and removes the item with it
     
-    int update_balance(Node*& n, Key k);    //done
+    // Helpers
+    int height(Node*);
+    int size(Node*);
+    bool is_leaf(Node* n);
+    bool contains_key(Node* n, Key k);  // checks if there is a given key in the dictionary
     
-    void rotate_right(Node *&);             //done
-    void rotate_left(Node *&);              //done
-    void rotate_left_right(Node *&);        //done
-    void rotate_right_left(Node *&);        //done
-    void rotate_double(Node *&, bool left_right);   //done
+    int update_balance(Node*&);
+    int update_balance_directional(Node*& n, Key k);    //updates balance of the tree
+    
+    // Rotations
+    bool rotate(Node*& n);       // Logic for rotating
+    void rotate_right(Node *&);
+    void rotate_left(Node *&);
+    void rotate_left_right(Node *&);
+    void rotate_right_left(Node *&);
+    void rotate_double(Node *&, bool left_right);
+    
+    // Displaying the tree
+    void draw_box(Node*,std::vector< std::vector<char> > &,int s, int x, int y, bool dir);
 public:
-    Dictionary():root(nullptr){}        // done
-    ~Dictionary();                      // done
+    Dictionary():root(nullptr){}
+    ~Dictionary();
+
+    int height();
+    int size();
     
-    int height();                       // done
-    int countleaves();                  // done
+    bool add(Key k, Info v);
     
-    bool add(Key k, Info v);            // done
-    bool remove(Key k);                 // done
+    Info& get(Key k);
     
-    bool find_by_key(Key k);            // returns true if the key is found
-    bool find_by_value(Info v);         // returns true if the value is found
-    Info update(Key k, Info v);         // Finds node with Key k and exchanges the value of it with V, return previous value if existed, if not adds new returns new
-    Info& get(Key k);        //done, recursive
-    
-    void clear();           //done, calls recursion
-    Info pop(Key k);        //returns value under a given key and removes it
-    
-    Key get_highest_key();      //done
-    Key get_lowest_key();       //done
-    
-    void draw();            //??????
+    bool remove(Key k);
+    // Removes the nodes with k and returns it's value
+    Info pop(Key k);
+    void clear();
+
+    // returns true if the key is found
+    bool contains_key(Key k);
+    bool is_empty();
+    // Displays the tree
+    void display();
 };
+
+
+template <typename Key, typename Info>
+bool Dictionary<Key,Info>::is_empty(){
+    if(root)
+        return 0;
+    return 1;
+}
+
 
 // Returns reference to value under a given key
 template <typename Key, typename Info>
@@ -92,58 +104,33 @@ Info& Dictionary<Key,Info>::get(Key k){
     return get(k,root);
 }
 
-// TODO
-// returns true if the key is found
+// Returns true if the given key is found
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::find_by_key(Node* n, Key k){
+bool Dictionary<Key,Info>::contains_key(Node* n, Key k){
     if(!n)
         return 0;
     else if(n->key == k)
         return 1;
     else if(n->key > k)
-        return find_by_value(n->lchild, k);
+        return contains_key(n->lchild, k);
     else
-        return find_by_value(n->rchild, k);
+        return contains_key(n->rchild, k);
 }
 
+// Call to recursive function
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::find_by_key(Key k){
+bool Dictionary<Key,Info>::contains_key(Key k){
     if(!root)
         return 0;
-    return find_by_key(root, k);
-}
-
-template <typename Key, typename Info>
-bool Dictionary<Key,Info>::find_by_value(Node* n, Info v){
-    if(!n)
-        return 0;
-    else{
-        if(n->val == v)
-            return 1;
-        bool r = find_by_value(n->lchild, v);
-        if(r)
-            return 1;
-        r = find_by_value(n->rchild, v);
-        if(r)
-            return 1;
-        return 0;
-    }
-}
-
-// returns true if the key is found
-template <typename Key, typename Info>
-bool Dictionary<Key,Info>::find_by_value(Info v){
-    if(!root)
-        return 0;
-    return find_by_value(root,v);
+    return contains_key(root, k);
 }
 
 // Add exception
 // Returns lowest value key from the dictionary
 template <typename Key, typename Info>
 typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_lowest(Node *n){
-//    if(!n)
-//        raise
+    if(!n)
+        throw std::invalid_argument("Given node doesn't exist");
     if(!n->lchild)
         return n;
     else
@@ -154,8 +141,8 @@ typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_lowest(Node *n){
 // Returns highest value key from the dictionary
 template <typename Key, typename Info>
 typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_highest(Node *n){
-    //    if(!n)
-    //        raise
+    if(!n)
+        throw std::invalid_argument("Given node doesn't exist");
     if(!n->rchild)
         return n;
     else
@@ -166,7 +153,7 @@ typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_highest(Node *n){
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::is_leaf(Node *n){
     if(!n)
-        return 0;
+        throw std::invalid_argument("Given node doesn't exist");
     if(!n->lchild && !n->rchild)
         return 1;
     return 0;
@@ -179,6 +166,7 @@ Dictionary<Key,Info>::~Dictionary(){
 }
 
 // Removes whole branch starting from node n
+// Updates balance after last operation
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::remove_branch(Node*& n, bool first){
     if(n){
@@ -188,7 +176,7 @@ void Dictionary<Key,Info>::remove_branch(Node*& n, bool first){
         delete n;
         n = nullptr;
         if(first)
-            update_balance(root,k);
+            update_balance_directional(root,k);
     }
 }
 
@@ -211,42 +199,38 @@ int Dictionary<Key,Info>::height(){
     return root ? height(root) : 0;
 }
 
-// Counts number of leaves on the given tree
+// Returns size of the dictionary
 template <typename Key, typename Info>
-int Dictionary<Key,Info>::countleaves(Node* x){
+int Dictionary<Key,Info>::size(Node* x){
     if(!x)
         return 0;
     if(!x->lchild && !x->rchild)
         return 1;
-    return countleaves(x->lchild) + countleaves(x->rchild);
+    return 1 + size(x->lchild) + size(x->rchild);
 }
 
-// Call to recurisve function countleaves
+// Call to recurisve function size
 template <typename Key, typename Info>
-int Dictionary<Key,Info>::countleaves(){
-    return countleaves(root);
+int Dictionary<Key,Info>::size(){
+    return size(root);
 }
 
-// Adds a new leaf to the dictionary tree
+// Adds a new item to the dictionary
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::add(Key k, Info v, Node* p){
-    if(p->key > k){
-        if(p->lchild)
-            return add(k,v,p->lchild);
-        else{
-            p->lchild = new Node(k,v,p);
-            return 0;
-        }
+bool Dictionary<Key,Info>::add(Key k, Info v, Node*& n){
+    if(!n){
+        n = new Node(k,v);
+        return 0;
     }
-    else if(p->key < k){
-        if(p->rchild)
-            return add(k,v,p->rchild);
-        else{
-            p->rchild = new Node(k,v,p);
-            return 0;
-        }
+    if(n->key > k){
+        return add(k,v,n->lchild);
     }
-    return 1;
+    else if(n->key < k){
+        return add(k,v,n->rchild);
+    }
+    else{
+        return 1;
+    }
 }
 
 // Calls recursive function for addition, calls update balance if node was added successfully
@@ -255,7 +239,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v){
     if(root){
         bool r = add(k,v,root);
         if(!r)
-            update_balance(root,k);
+            update_balance_directional(root,k);
         return r;
     }
     else{
@@ -310,16 +294,15 @@ bool Dictionary<Key,Info>::remove(Key k){
         return 1;
     bool r = remove(root,k);
     if(!r)
-        update_balance(root, k);
+        update_balance(root);
     return r;
 }
 
 // Removes element and returns value of the removed element
 template <typename Key, typename Info>
 Info Dictionary<Key,Info>::pop(Node*& n, Key k){
-    if(!n){
-        return 5;
-    }
+    if(!n)
+        throw std::invalid_argument("Given key isn't in the dictionary");
     else{
         if(n->key < k)
             return pop(n->rchild,k);
@@ -337,7 +320,9 @@ Info Dictionary<Key,Info>::pop(Node*& n, Key k){
 // Call to recurisve private function
 template <typename Key, typename Info>
 Info Dictionary<Key,Info>::pop(Key k){
-    return pop(root,k);
+    Info tmp = pop(root,k);
+    update_balance(root);
+    return tmp;
 }
 
 // Removes everything from the dictionary
@@ -347,12 +332,14 @@ void Dictionary<Key,Info>::clear(){
 }
 
 // Rotates nodes left right or right left
+
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::rotate_double(Node *&n, bool left_right){
     Node* x;
     Node* y;
     Node* z;
-    if(left_right){
+    // Saving pointers to nodes we operate on
+    if(!left_right){
         z = n;
         x = z->lchild;
         y = x->rchild;
@@ -362,35 +349,36 @@ void Dictionary<Key,Info>::rotate_double(Node *&n, bool left_right){
         z = x->rchild;
         y = z->lchild;
     }
-    
+    // Re-attaching children of temporarly-lowest node if they exist
     if(y->lchild){
         x->rchild = y->lchild;
-        x->rchild->parent = x;
     }
     else{
         x->rchild = nullptr;
     }
     if(y->rchild){
         z->lchild = y->rchild;
-        z->lchild->parent = z;
     }
     else{
         z->lchild = nullptr;
     }
+    // Attaching nodes
     y->lchild = x;
     y->rchild = z;
-    y->parent = x->parent;
-    x->parent = z->parent = y;
     n = y;
+    
     // Balancing
+    // Y was right heave, so the right node is now left heavy
     if(y->balance > 0){
         x->balance = -1;
         z->balance = 0;
     }
+    // Balanced
     else if(y->balance == 0){
         x->balance = 0;
         z->balance = 0;
     }
+    // Y was left heavy, so the left node is now right heavy
     else{
         x->balance = 0;
         z->balance = 1;
@@ -419,7 +407,6 @@ void Dictionary<Key,Info>::rotate_left(Node *&n){
     // Dealing with inner child of lower node
     if(y->lchild){
         x->rchild = y->lchild;
-        x->rchild->parent = x;
     }
     else{
         x->rchild = nullptr;
@@ -427,9 +414,6 @@ void Dictionary<Key,Info>::rotate_left(Node *&n){
     // Rotating positions of nodes
     y->lchild = x;
     n = y;
-    // Parents swap
-    y->parent = x->parent;
-    x->parent = y;
     
     // Balance value updates
     if(y->balance == 0){
@@ -451,7 +435,6 @@ void Dictionary<Key,Info>::rotate_right(Node *&n){
     // Dealing with inner child of lower node
     if(y->rchild){
         x->lchild = y->rchild;
-        x->lchild->parent = x;
     }
     else{
         x->lchild = nullptr;
@@ -459,9 +442,6 @@ void Dictionary<Key,Info>::rotate_right(Node *&n){
     // Swapping the nodes
     y->rchild = x;
     n = y;
-    // Parents swap
-    y->parent = x->parent;
-    x->parent = y;
     
     // Balance value updates
     if(y->balance == 0){
@@ -474,40 +454,161 @@ void Dictionary<Key,Info>::rotate_right(Node *&n){
     }
 }
 
-// Updates balance values of a tree from leaf, good for insertions
+// Logic for rotating of nodes
 template <typename Key, typename Info>
-int Dictionary<Key,Info>::update_balance(Node*& n, Key k){
-    if(!n){
-        return 0;
-    }
-    int h = 0;
-    if(n->key < k){
-        h = update_balance(n->rchild,k);
-        n->balance = h - height(n->lchild);
-    }
-    if(n->key > k){
-        h = update_balance(n->lchild,k);
-        n->balance = height(n->rchild) - h;
-    }
+bool Dictionary<Key,Info>::rotate(Node*& n){
+    
     if(n->balance == 2 && n->rchild->balance >= 0){
         rotate_left(n);
+        return 1;
     }
     else if(n->balance == -2 && n->lchild->balance <= 0){
         rotate_right(n);
+        return 1;
     }
     else if(n->balance == 2 && n->rchild->balance == -1){
         rotate_right_left(n);
+        return 1;
     }
     else if(n->balance == -2 && n->lchild->balance == 1){
-        rotate_right_left(n);
+        rotate_left_right(n);
+        return 1;
     }
+    
+    return 0;
+}
+// Checks all nodes for balance updates
+// Used for removal
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::update_balance(Node*& n){
+    if(!n)
+        return 0;
+    int hleft, hright;
+    hleft = update_balance(n->lchild);
+    hright = update_balance(n->rchild);
+    n->balance = hright - hleft;
+    
+    if(rotate(n))
+        return (hleft > hright ? hleft : hright);
+    return (hleft > hright ? hleft : hright) + 1;
+}
+
+// Updates balance values of a tree from node to the given key
+// Used for addition
+template <typename Key, typename Info>
+int Dictionary<Key,Info>::update_balance_directional(Node*& n, Key k){
+    if(!n){
+        return 0;
+    }
+    int h = 0;  // height
+    // Going over nodes affected by addition removal of k
+    if(n->key < k){
+        h = update_balance_directional(n->rchild,k);
+        n->balance = h - height(n->lchild);
+    }
+    if(n->key > k){
+        h = update_balance_directional(n->lchild,k);
+        n->balance = height(n->rchild) - h;
+    }
+    // Rotations
+    if(rotate(n))
+        return h;
     return h+1;
 }
 
-// Yikers
+
+// Recursive function that draws a node and a line from it's parent to it
+// Takes as arguments: Node, 2D matrix containing the structure to be displayed,
+// size of the box that the function is currently drawing in
+// x and y positions of start of the box, direction in which the node is "going" (left for 0, right for 1)
 template <typename Key, typename Info>
-void Dictionary<Key,Info>::draw(){
-    
+void Dictionary<Key,Info>::draw_box(Node* n,std::vector< std::vector<char> > &arr,int s, int x, int y, bool dir){
+    if(s > 1 && n){
+        int nx,ny;      // those values determine the place where value will be displayed
+        ny = y+s-1;
+        if(dir){
+            // Right side
+            for(int i=0;i<s-1;i++){
+                arr[y+i][x+i] = '\\';
+            }
+            nx = x+s-2;
+        }
+        else{
+            // Left side
+            for(int i=0;i<s-1;i++){
+                arr[y+i][x-i] = '/';
+            }
+            nx = x-s+1;
+        }
+        int bal = n->balance;
+        if(bal==0){
+            arr[ny][nx] = '0';
+            arr[ny][nx+1] = '0';
+        }
+        else if(bal<0){
+            arr[ny][nx] = '-';
+            arr[ny][nx+1] = '1';
+        }
+        else{
+            arr[ny][nx] = '+';
+            arr[ny][nx+1] = '1';
+        }
+        // Different next box posistions for left and right
+        if(dir){
+            draw_box(n->lchild, arr, s/2, x+s-3, y+s, 0);
+            draw_box(n->rchild, arr, s/2, x+s, y+s, 1);
+        }
+        else{
+            draw_box(n->lchild, arr, s/2, x-s, y+s, 0);
+            draw_box(n->rchild, arr, s/2, x-s+3, y+s, 1);
+        }
+    }
 }
 
+
+// Displays tree structure with balance values on nodes
+// Makes base preparations for node
+// Calls the draw_box function
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::display(){
+    int h = height();
+    if(h != 0){
+        // Calculating base values for array
+        int max_leaves = pow(2,h-1);
+        int width = max_leaves * 4 - 2;
+        int height = pow(2,h)-1;
+        
+        // Initialization of the matrix
+        std::vector< std::vector<char> > arr (height);
+        for(int i=0; i < height; i++){
+            arr[i].resize(width);
+            for(int k=0; k < width; k++){
+                arr[i][k] = ' ';
+            }
+        }
+        // Inserting first element
+        int b = root->balance;
+        if(b==0){
+            arr[0][width/2-1] = '0';
+            arr[0][width/2] = '0';
+        }
+        else if(b<0){
+            arr[0][width/2-1] = '-';
+            arr[0][width/2] = '1';
+        }
+        else{
+            arr[0][width/2-1] = '+';
+            arr[0][width/2] = '1';
+        }
+        // Recursivly drawing nodes
+        draw_box(root->lchild, arr, max_leaves, width/2-2, 1, 0);
+        draw_box(root->rchild, arr, max_leaves, width/2+1, 1, 1);
+        for(int i=0; i < height; i++){
+            for(int k=0; k < width; k++){
+                std::cout << arr[i][k];
+            }
+            std::cout << std::endl;
+        }
+    }
+}
 #endif /* binarytree_h */
