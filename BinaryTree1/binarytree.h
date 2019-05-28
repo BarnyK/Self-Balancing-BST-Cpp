@@ -9,24 +9,13 @@
 #ifndef binarytree_h
 #define binarytree_h
 
-// Help function
-int sum(int height){
-    int count = 0;
-    int c = 1;
-    for(int i=0;i<height;i++){
-        count += c;
-        c *= 2;
-    }
-    return c;
-}
-
 template <typename Key,typename Info>
 class Dictionary{
 private:
     struct Node{
         Key key;
         Info val;
-        int balance;
+        int balance;    //updates after removal and insertion
         
         Node* parent;
         Node* lchild;
@@ -298,14 +287,7 @@ bool Dictionary<Key,Info>::is_leaf(Node *n){
 }
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::draw(){
-    int h = height();
-    Node* lista[h][sum(h)];
-    for(int i=0; i < h; i++){
-        for(int k=0;k < sum(i);k++){
-            std::cout << i << k;
-        }
-        std::cout << std::endl;
-    }
+    
 }
 
 template <typename Key, typename Info>
@@ -390,7 +372,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v){
     }
 }
 
-// ?????? UPDATE_BALANCE 
+// ?????? UPDATE_BALANCE
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::remove(Node*& n, Key k){
     if(!n)
