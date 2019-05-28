@@ -11,13 +11,12 @@
 
 int main() {
     Dictionary<int,int> tree;
-    tree.add(32,0);
-    tree.add(16,0);
-    tree.add(34,0);
-    tree.add(31,0);
-    tree.add(8,0);
-    std::cout << tree.countleaves() << std::endl;
-    std::cout << tree.height() << std::endl;
-    
+
+    tree.add(16,1);
+    tree.add(32,2);
+    tree.add(48,3);
+    tree.add(8,4);
+    tree.remove(48);
+    std::cout << tree.pop(8) << std::endl;
     return 0;
 }
