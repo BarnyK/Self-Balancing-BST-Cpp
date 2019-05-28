@@ -28,7 +28,7 @@ private:
     bool add(Key k, Info v, Node* p);   //done, recursive
     
     bool remove(Node*& n, Key k);       //done, recursive
-    void remove_branch(Node *n);        //done, recursive
+    void remove_branch(Node*& n, bool first = 1);        //done, recursive
     
     int height(Node*);                  //done, recursive
     int countleaves(Node*);             //done, recursive
@@ -256,6 +256,7 @@ bool Dictionary<Key,Info>::find_by_key(Key k){
 }
 
 // Add exception
+// Returns lowest value key from the dictionary
 template <typename Key, typename Info>
 typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_lowest(Node *n){
 //    if(!n)
@@ -267,6 +268,7 @@ typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_lowest(Node *n){
 }
 
 // Add exception
+// Returns highest value key from the dictionary
 template <typename Key, typename Info>
 typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_highest(Node *n){
     //    if(!n)
@@ -274,9 +276,10 @@ typename Dictionary<Key,Info>::Node* Dictionary<Key,Info>::get_highest(Node *n){
     if(!n->rchild)
         return n;
     else
-        return get_lowest(n->rchild);
+        return get_highest(n->rchild);
 }
 
+// Returns true if given node is a leaf
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::is_leaf(Node *n){
     if(!n)
@@ -285,26 +288,36 @@ bool Dictionary<Key,Info>::is_leaf(Node *n){
         return 1;
     return 0;
 }
+
+// Yikers
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::draw(){
     
 }
 
+// Destructor calls remove_branch, which is a recursive function
 template <typename Key, typename Info>
 Dictionary<Key,Info>::~Dictionary(){
     remove_branch(root);
-    root = nullptr;
 }
 
+// Removes whole branch starting from node n
 template <typename Key, typename Info>
-void Dictionary<Key,Info>::remove_branch(Node* n){
+void Dictionary<Key,Info>::remove_branch(Node*& n, bool first){
     if(n){
-        remove_branch(n->lchild);
-        remove_branch(n->rchild);
+        remove_branch(n->lchild,0);
+        remove_branch(n->rchild,0);
+        Key k = n->key;
         delete n;
+        n = nullptr;
+        if(first)
+            update_balance(root,k);
     }
 }
 
+
+
+// Returns height of a tree
 template <typename Key, typename Info>
 int Dictionary<Key,Info>::height(Node* x){
     if(!x)
@@ -315,6 +328,7 @@ int Dictionary<Key,Info>::height(Node* x){
     return hleft > hright ? hleft : hright;
 }
 
+// Call to recurisve function height
 template <typename Key, typename Info>
 int Dictionary<Key,Info>::height(){
     return root ? height(root) : 0;
@@ -330,6 +344,7 @@ int Dictionary<Key,Info>::countleaves(Node* x){
     return countleaves(x->lchild) + countleaves(x->rchild);
 }
 
+// Call to recurisve function countleaves
 template <typename Key, typename Info>
 int Dictionary<Key,Info>::countleaves(){
     return countleaves(root);
@@ -357,7 +372,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v, Node* p){
     return 1;
 }
 
-// Calls recursive function for add
+// Calls recursive function for addition, calls update balance if node was added successfully
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::add(Key k, Info v){
     if(root){
@@ -373,6 +388,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v){
 }
 
 // ?????? UPDATE_BALANCE
+// Removes a node with given key from a dictionary
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::remove(Node*& n, Key k){
     if(!n)
