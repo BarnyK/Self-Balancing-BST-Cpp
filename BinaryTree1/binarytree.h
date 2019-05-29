@@ -13,7 +13,7 @@ private:
         
         Node* lchild;
         Node* rchild;
-        Node(Key k, Info v, Node* l = nullptr, Node* r = nullptr):key(k),val(v),balance(0),lchild(l),rchild(r){};
+        Node(Key k, Info v):key(k),val(v),balance(0),lchild(nullptr),rchild(nullptr){};
     };
     
     Node* root;

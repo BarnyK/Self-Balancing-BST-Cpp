@@ -127,6 +127,12 @@ int main() {
     letters.add(6, 'f');
     letters.display();
     std::cout << "5th letter: " << letters.get(5) << std::endl;
-    
+    std::cout << std::endl;
+    letters.clear();
+    for(int i=1; i < 26; i++){
+        letters.add(i,'a'+i-1);
+        letters.display();
+        std::cout << std::endl;
+    }
     return 0;
 }
