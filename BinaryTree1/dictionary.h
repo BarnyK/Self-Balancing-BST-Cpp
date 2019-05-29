@@ -1,5 +1,5 @@
-#ifndef binarytree_h
-#define binarytree_h
+#ifndef dictionary_h
+#define dictionary_h
 
 
 
@@ -611,4 +611,4 @@ void Dictionary<Key,Info>::display(){
         }
     }
 }
-#endif /* binarytree_h */
+#endif /* dictionary_h */

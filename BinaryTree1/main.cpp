@@ -2,7 +2,7 @@
 #include <exception>
 #include <vector>
 #include <cmath>
-#include "binarytree.h"
+#include "dictionary.h"
 
 int main() {
     Dictionary<int,int> tree;
@@ -132,7 +132,6 @@ int main() {
     for(int i=1; i < 26; i++){
         letters.add(i,'a'+i-1);
         letters.display();
-        std::cout << std::endl;
     }
     return 0;
 }
