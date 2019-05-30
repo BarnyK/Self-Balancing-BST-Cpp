@@ -13,16 +13,16 @@ private:
         
         Node* lchild;
         Node* rchild;
-        Node(Key k, Info v):key(k),val(v),balance(0),lchild(nullptr),rchild(nullptr){};
+        Node(const Key &k, const Info &v):key(k),val(v),balance(0),lchild(nullptr),rchild(nullptr){};
     };
     
     Node* root;
     
     // Addition
-    bool add(Key k, Info v, Node*& p);
+    bool add(const Key &k,const Info &v, Node*& p);
     
     // Removal
-    bool remove(Node*& n, Key k);
+    bool remove(Node*& n, const Key &k);
     void remove_branch(Node*& n, bool first = 1);
     
     // Used in removal, helping functions
@@ -30,17 +30,17 @@ private:
     Node* get_highest(Node *n);
     
     //
-    Info& get(Key k, Node* n);          // returns reference to value under a given key
-    Info pop(Node*& n, Key k);          // return value under a given key and removes the item with it
+    Info& get(const Key &k, Node* n);          // returns reference to value under a given key
+    Info pop(Node*& n, const Key &k);          // return value under a given key and removes the item with it
     
     // Helpers
     int height(Node*);
     int size(Node*);
     bool is_leaf(Node* n);
-    bool contains_key(Node* n, Key k);  // checks if there is a given key in the dictionary
+    bool contains_key(Node* n, const Key &k);  // checks if there is a given key in the dictionary
     
     int update_balance(Node*&);
-    int update_balance_directional(Node*& n, Key k);    //updates balance of the tree
+    int update_balance_directional(Node*& n, const Key &k);    //updates balance of the tree
     
     // Rotations
     bool rotate(Node*& n);       // Logic for rotating
@@ -55,21 +55,21 @@ private:
 public:
     Dictionary():root(nullptr){}
     ~Dictionary();
-
+    Dictionary& operator=(Dictionary&); // Not done
     int height();
     int size();
     
-    bool add(Key k, Info v);
+    bool add(const Key &k,const Info &v);
     
-    Info& get(Key k);
+    Info& get(const Key &k);
     
-    bool remove(Key k);
+    bool remove(const Key &k);
     // Removes the nodes with k and returns it's value
-    Info pop(Key k);
+    Info pop(const Key &k);
     void clear();
 
     // returns true if the key is found
-    bool contains_key(Key k);
+    bool contains_key(const Key &k);
     bool is_empty();
     // Displays the tree
     void display();
@@ -86,7 +86,7 @@ bool Dictionary<Key,Info>::is_empty(){
 
 // Returns reference to value under a given key
 template <typename Key, typename Info>
-Info& Dictionary<Key,Info>::get(Key k, Node* r){
+Info& Dictionary<Key,Info>::get(const Key &k, Node* r){
     if(r->key == k){
         return r->val;
     }
@@ -100,13 +100,13 @@ Info& Dictionary<Key,Info>::get(Key k, Node* r){
 
 // Call to recursive function get
 template <typename Key, typename Info>
-Info& Dictionary<Key,Info>::get(Key k){
+Info& Dictionary<Key,Info>::get(const Key &k){
     return get(k,root);
 }
 
 // Returns true if the given key is found
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::contains_key(Node* n, Key k){
+bool Dictionary<Key,Info>::contains_key(Node* n, const Key &k){
     if(!n)
         return 0;
     else if(n->key == k)
@@ -119,7 +119,7 @@ bool Dictionary<Key,Info>::contains_key(Node* n, Key k){
 
 // Call to recursive function
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::contains_key(Key k){
+bool Dictionary<Key,Info>::contains_key(const Key &k){
     if(!root)
         return 0;
     return contains_key(root, k);
@@ -217,7 +217,7 @@ int Dictionary<Key,Info>::size(){
 
 // Adds a new item to the dictionary
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::add(Key k, Info v, Node*& n){
+bool Dictionary<Key,Info>::add(const Key &k, const Info &v, Node*& n){
     if(!n){
         n = new Node(k,v);
         return 0;
@@ -235,7 +235,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v, Node*& n){
 
 // Calls recursive function for addition, calls update balance if node was added successfully
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::add(Key k, Info v){
+bool Dictionary<Key,Info>::add(const Key &k, const Info &v){
     if(root){
         bool r = add(k,v,root);
         if(!r)
@@ -250,7 +250,7 @@ bool Dictionary<Key,Info>::add(Key k, Info v){
 
 // Removes a node with given key from a dictionary
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::remove(Node*& n, Key k){
+bool Dictionary<Key,Info>::remove(Node*& n, const Key &k){
     if(!n)
         return 1;
     if(n->key > k)
@@ -289,7 +289,7 @@ bool Dictionary<Key,Info>::remove(Node*& n, Key k){
 
 // Calls recursive remove function
 template <typename Key, typename Info>
-bool Dictionary<Key,Info>::remove(Key k){
+bool Dictionary<Key,Info>::remove(const Key &k){
     if(!root)
         return 1;
     bool r = remove(root,k);
@@ -300,7 +300,7 @@ bool Dictionary<Key,Info>::remove(Key k){
 
 // Removes element and returns value of the removed element
 template <typename Key, typename Info>
-Info Dictionary<Key,Info>::pop(Node*& n, Key k){
+Info Dictionary<Key,Info>::pop(Node*& n, const Key &k){
     if(!n)
         throw std::invalid_argument("Given key isn't in the dictionary");
     else{
@@ -319,7 +319,7 @@ Info Dictionary<Key,Info>::pop(Node*& n, Key k){
 
 // Call to recurisve private function
 template <typename Key, typename Info>
-Info Dictionary<Key,Info>::pop(Key k){
+Info Dictionary<Key,Info>::pop(const Key &k){
     Info tmp = pop(root,k);
     update_balance(root);
     return tmp;
@@ -496,7 +496,7 @@ int Dictionary<Key,Info>::update_balance(Node*& n){
 // Updates balance values of a tree from node to the given key
 // Used for addition
 template <typename Key, typename Info>
-int Dictionary<Key,Info>::update_balance_directional(Node*& n, Key k){
+int Dictionary<Key,Info>::update_balance_directional(Node*& n, const Key &k){
     if(!n){
         return 0;
     }

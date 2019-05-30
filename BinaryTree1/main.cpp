@@ -2,6 +2,7 @@
 #include <exception>
 #include <vector>
 #include <cmath>
+#include <stdio.h>
 #include "dictionary.h"
 
 int main() {
