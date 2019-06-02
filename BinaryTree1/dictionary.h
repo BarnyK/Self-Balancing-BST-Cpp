@@ -13,11 +13,12 @@ private:
         
         Node* lchild;
         Node* rchild;
-        Node(const Key &k, const Info &v):key(k),val(v),balance(0),lchild(nullptr),rchild(nullptr){};
+        Node(const Key &k, const Info &v, int b=0):key(k),val(v),balance(b),lchild(nullptr),rchild(nullptr){};
     };
     
     Node* root;
-    
+    // Copy
+    void copy_node(Node*& x, Node* y);
     // Addition
     bool add(const Key &k,const Info &v, Node*& p);
     
@@ -55,7 +56,7 @@ private:
 public:
     Dictionary():root(nullptr){}
     ~Dictionary();
-    Dictionary& operator=(Dictionary&); // Not done
+    Dictionary& operator=(const Dictionary<Key,Info>&); // Not done
     int height();
     int size();
     
@@ -76,6 +77,26 @@ public:
 };
 
 
+template <typename Key, typename Info>
+void Dictionary<Key,Info>::copy_node(Node*& x, Node* y){
+    if(y){
+        x = new Node(y->key,y->val,y->balance);
+        copy_node(x->lchild, y->lchild);
+        copy_node(x->rchild, y->rchild);
+    }
+}
+
+//
+template <typename Key, typename Info>
+Dictionary<Key,Info>& Dictionary<Key,Info>::operator=(const Dictionary<Key,Info>& y){
+    if(this == &y)
+        return *this;
+    this->clear();
+    copy_node(root, y.root);
+    
+    return *this;
+}
+// Returns true if empty
 template <typename Key, typename Info>
 bool Dictionary<Key,Info>::is_empty(){
     if(root)

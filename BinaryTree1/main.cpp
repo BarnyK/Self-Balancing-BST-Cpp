@@ -129,10 +129,10 @@ int main() {
     letters.display();
     std::cout << "5th letter: " << letters.get(5) << std::endl;
     std::cout << std::endl;
-    letters.clear();
-    for(int i=1; i < 26; i++){
-        letters.add(i,'a'+i-1);
-        letters.display();
-    }
+    
+    Dictionary<float, char> letters2;
+    letters2.add(9,'i');
+    letters2 = letters;
+    letters2.display();
     return 0;
 }
