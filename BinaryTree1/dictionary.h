@@ -55,6 +55,7 @@ private:
     void draw_box(Node*,std::vector< std::vector<char> > &,int s, int x, int y, bool dir);
 public:
     Dictionary():root(nullptr){}
+    Dictionary(const Dictionary<Key,Info>&);
     ~Dictionary();
     Dictionary& operator=(const Dictionary<Key,Info>&); // Not done
     int height();
@@ -77,6 +78,14 @@ public:
 };
 
 
+// Copy constructor
+template <typename Key, typename Info>
+Dictionary<Key,Info>::Dictionary(const Dictionary<Key,Info>& y){
+    copy_node(root,y.root);
+    
+}
+
+// Copies branch nodes recursively
 template <typename Key, typename Info>
 void Dictionary<Key,Info>::copy_node(Node*& x, Node* y){
     if(y){
@@ -86,7 +95,7 @@ void Dictionary<Key,Info>::copy_node(Node*& x, Node* y){
     }
 }
 
-//
+// Assignment operator
 template <typename Key, typename Info>
 Dictionary<Key,Info>& Dictionary<Key,Info>::operator=(const Dictionary<Key,Info>& y){
     if(this == &y)

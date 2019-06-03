@@ -130,9 +130,7 @@ int main() {
     std::cout << "5th letter: " << letters.get(5) << std::endl;
     std::cout << std::endl;
     
-    Dictionary<float, char> letters2;
-    letters2.add(9,'i');
-    letters2 = letters;
+    Dictionary<float, char> letters2 = Dictionary<float,char>(letters);
     letters2.display();
     return 0;
 }
